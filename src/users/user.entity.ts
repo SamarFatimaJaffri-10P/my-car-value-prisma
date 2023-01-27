@@ -7,7 +7,7 @@ import {
   Column,
   Entity,
   OneToMany,
-  PrimaryGeneratedColumn
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity()
@@ -21,6 +21,9 @@ export class User {
   @Column()
   @Exclude()
   password: string;
+
+  @Column({ default: true })
+  admin: boolean;
 
   /**
    * `() => Report` tells TypeORM that the attribute is going to be of `Report Entity type
