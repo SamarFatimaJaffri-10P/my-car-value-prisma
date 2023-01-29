@@ -4,11 +4,11 @@ import { APP_PIPE } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { Report } from './reports/reports.entity';
+import { TypeOrmConfigService } from './config/typeorm.config';
 import { ReportsModule } from './reports/reports.module';
-import { User } from './users/user.entity';
 import { UsersModule } from './users/users.module';
 const cookieSession = require('cookie-session');
+const settings = require('../ormconfig.js');
 
 @Module({
   imports: [
@@ -18,18 +18,7 @@ const cookieSession = require('cookie-session');
       envFilePath: `.env.${process.env.NODE_ENV}`, // NODE_ENV is test in test environment and development in develop env
     }),
     // setting up db connection
-    TypeOrmModule.forRootAsync({
-      // using dependency injection to find the configuration services having all of our config info. from the chosen config file
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
-        return {
-          type: 'sqlite',
-          database: config.get<string>('DB_NAME'),
-          synchronize: true,
-          entities: [User, Report],
-        };
-      },
-    }),
+    TypeOrmModule.forRootAsync({ useClass: TypeOrmConfigService }),
     UsersModule,
     ReportsModule,
   ],
@@ -46,12 +35,14 @@ const cookieSession = require('cookie-session');
   ],
 })
 export class AppModule {
+  constructor(private configService: ConfigService) {}
+
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(
         // setting up cookie session
         cookieSession({
-          keys: ['random_string'],
+          keys: [this.configService.get('COOKIE_KEY')],
         }),
       )
       .forRoutes('*');
