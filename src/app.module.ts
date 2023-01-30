@@ -8,7 +8,6 @@ import { TypeOrmConfigService } from './config/typeorm.config';
 import { ReportsModule } from './reports/reports.module';
 import { UsersModule } from './users/users.module';
 const cookieSession = require('cookie-session');
-const settings = require('../ormconfig.js');
 
 @Module({
   imports: [

@@ -10,7 +10,7 @@ import {
   Post,
   Query,
   Session,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '../guards/auth.guards';
 import { Serialize } from '../interceptors/serialize.interceptor';
