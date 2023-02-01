@@ -1,0 +1,59 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "typeorm migration",
+            "type": "npm",
+            "script": "typeorm migration:generate src/migrations/migration-name",
+            "runOptions": {"runOn": "default"}
+        },
+        {
+            "label": "typeorm run",
+            "type": "npm",
+            "script": "typeor migration:run",
+            "runOptions": {"runOn": "default"}
+        },
+        {
+            "label": "railway run",
+            "type": "shell",
+            "command": "railway run npm start",
+            "runOptions": {"runOn": "default"}
+        },
+        {
+            "label": "npm start",
+            "type": "npm",
+            "script": "start:dev",
+            "runOptions": {"runOn": "default"}
+        },
+        {
+            "label": "e2e tests",
+            "type": "npm",
+            "script": "test:e2e",
+            "runOptions": {"runOn": "folderOpen"},
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "new",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "tests",
+            "type": "npm",
+            "script": "test:watch",
+            "dependsOn": "e2e tests",
+            "dependsOrder": "sequence",
+            "runOptions": {"runOn": "folderOpen"},
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "new",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        }
+    ]
+}
