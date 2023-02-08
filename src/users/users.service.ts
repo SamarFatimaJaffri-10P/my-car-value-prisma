@@ -1,29 +1,32 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from './user.entity';
+import { User } from '@prisma/client';
+import { randomBytes, scrypt as _scrypt } from 'crypto';
+import { promisify } from 'util';
+import { PrismaService } from '../prisma/prisma.service';
 
+const scrypt = promisify(_scrypt);
 @Injectable()
 export class UsersService {
-  constructor(@InjectRepository(User) private repo: Repository<User>) {}
+  constructor(private prisma: PrismaService) {}
 
-  create(email: string, password: string) {
+  create(email: string, password: string): Promise<User> {
     // create a user entity
-    const user = this.repo.create({ email, password });
+    const user = this.prisma.user.create({
+      data: { email, password, admin: false },
+    });
 
-    // save the created entity into the database
-    return this.repo.save(user);
+    return user;
   }
 
-  findOne(id: number) {
+  findOne(id: number): Promise<User> {
     if (!id) {
       return null;
     }
-    return this.repo.findOneBy({ id });
+    return this.prisma.user.findUnique({ where: { id: id } });
   }
 
-  find(email: string) {
-    return this.repo.find({ where: { email } });
+  find(email: string): Promise<User[]> {
+    return this.prisma.user.findMany({ where: { email: email } });
   }
 
   /**
@@ -36,8 +39,24 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('user not found');
     }
+
+    if (attrs.password) {
+      // hash the users password
+      // Generate a salt
+      const salt = randomBytes(8).toString('hex');
+
+      // Hash the salt and the password together
+      const hash = (await scrypt(attrs.password, salt, 32)) as Buffer; // help ts know that it is a buffer
+
+      // Join the hashed result and the salt together
+      attrs.password = `${salt}.${hash.toString('hex')}`;
+    }
+
     Object.assign(user, attrs);
-    return this.repo.save(user);
+    return this.prisma.user.update({
+      where: { id: user.id },
+      data: { ...attrs },
+    });
   }
 
   async remove(id: number) {
@@ -45,6 +64,6 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('user not found');
     }
-    return this.repo.remove(user);
+    return this.prisma.user.delete({ where: { id: id } });
   }
 }

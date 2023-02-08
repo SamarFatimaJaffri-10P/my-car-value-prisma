@@ -1,7 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { User } from '@prisma/client';
 import { AuthService } from './auth.service';
-import { User } from './user.entity';
 import { UsersService } from './users.service';
 
 // organizing tests using describe

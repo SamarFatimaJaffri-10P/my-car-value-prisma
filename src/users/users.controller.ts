@@ -12,6 +12,7 @@ import {
   Session,
   UseGuards,
 } from '@nestjs/common';
+import { User } from '@prisma/client';
 import { AuthGuard } from '../guards/auth.guards';
 import { Serialize } from '../interceptors/serialize.interceptor';
 import { AuthService } from './auth.service';
@@ -19,7 +20,6 @@ import { CurrentUser } from './decorators/current-user.decorator';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { UserDto } from './dtos/user.dto';
-import { User } from './user.entity';
 import { UsersService } from './users.service';
 
 @Controller('auth')

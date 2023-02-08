@@ -1,45 +1,55 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../users/user.entity';
-import { Repository } from 'typeorm';
+import { User } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateReportDto } from './dtos/create-report.dto';
 import { GetEstimateDto } from './dtos/get-estimate.dto';
-import { Report } from './reports.entity';
 
 @Injectable()
 export class ReportsService {
-  constructor(@InjectRepository(Report) private repo: Repository<Report>) {}
+  constructor(private prisma: PrismaService) {}
 
   // `{ make }` directly get the return value from the function, {} helps destructure the object
   createEstimate({ make, model, lng, lat, year, mileage }: GetEstimateDto) {
-    return this.repo
-      .createQueryBuilder()
-      .select('AVG(price)', 'price')
-      .where('make = :make', { make })
-      .andWhere('model = :model', { model })
-      .andWhere('lng - :lng BETWEEN -5 AND 5', { lng })
-      .andWhere('lat - :lat BETWEEN -5 AND 5', { lat })
-      .andWhere('year - :year BETWEEN -3 AND 3', { year })
-      .andWhere('approved IS TRUE')
-      .orderBy('mileage - :mileage', 'DESC') // orderBy doesn't take second param as an argument
-      .setParameters({ mileage })
-      .limit(3)
-      .getRawOne();
+    return this.prisma.report.aggregate({
+      _avg: {
+        price: true,
+      },
+      where: {
+        make: make,
+        model: model,
+        lng: { lte: lng + 5, gte: lng - 5 },
+        lat: { lte: lat + 5, gte: lat - 5 },
+        year: { lte: year + 3, gte: year - 3 },
+        approved: true,
+        mileage: mileage,
+      },
+      orderBy: {
+        mileage: 'desc',
+      },
+      take: 3,
+    });
   }
 
   create(reportDto: CreateReportDto, user: User) {
-    const report = this.repo.create(reportDto);
-    report.user = user;
-    return this.repo.save(report);
+    const report = this.prisma.report.create({
+      data: { ...reportDto, user: { connect: { id: user.id } } },
+    });
+    return report;
   }
 
   async changeApproval(id: string, approved: boolean) {
-    const report = await this.repo.findOne({ where: { id: parseInt(id) } });
+    const report = await this.prisma.report.findFirst({
+      where: { id: parseInt(id) },
+    });
     if (!report) {
       throw new NotFoundException('report not found');
     }
 
-    report.approved = approved;
-    return this.repo.save(report);
+    return this.prisma.report.update({
+      where: { id: parseInt(id) },
+      data: {
+        approved: approved,
+      },
+    });
   }
 }
