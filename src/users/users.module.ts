@@ -12,6 +12,7 @@ import { UsersService } from './users.service';
 })
 export class UsersModule {
   configure(consumer: MiddlewareConsumer) {
+    // NOTE: Middleware is a function which is called before the route handler (after client request)
     consumer.apply(CurrentUserMiddleware).forRoutes('*');
   }
 }

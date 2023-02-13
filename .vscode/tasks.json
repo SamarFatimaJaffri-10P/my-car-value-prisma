@@ -10,7 +10,7 @@
         {
             "label": "typeorm run",
             "type": "npm",
-            "script": "typeor migration:run",
+            "script": "typeorm migration:run",
             "runOptions": {"runOn": "default"}
         },
         {

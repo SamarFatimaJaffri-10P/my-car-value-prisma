@@ -34,7 +34,8 @@ describe('AuthService', () => {
     const module = await Test.createTestingModule({
       providers: [
         AuthService,
-        { provide: UsersService, useValue: fakeUsersService }, // if anyone ask for `UsersService`, provide them the value `fakeUsersService`
+        // if anyone ask for `UsersService`, provide them the value `fakeUsersService`
+        { provide: UsersService, useValue: fakeUsersService },
       ],
     }).compile();
 
@@ -79,9 +80,9 @@ describe('AuthService', () => {
   });
 
   it('returns a user if correct password is provided', async () => {
-    await service.signup('email.domain.com', 'password');
+    await service.signup('email@domain.com', 'password');
 
-    const user = await service.signin('email.domain.com', 'password');
+    const user = await service.signin('email@domain.com', 'password');
     expect(user).toBeDefined();
   });
 });

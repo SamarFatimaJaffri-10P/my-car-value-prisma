@@ -9,6 +9,7 @@ import { UsersModule } from './users/users.module';
 import cookieSession = require('cookie-session');
 
 @Module({
+  // NOTE: modules group together code
   imports: [
     // config information
     ConfigModule.forRoot({
@@ -19,11 +20,13 @@ import cookieSession = require('cookie-session');
     ReportsModule,
     PrismaModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController], // NOTE: controllers handles incoming requests
   providers: [
-    AppService,
+    AppService, // NOTE: services handles data access and business logic
     // setting up global pipe
+    // NOTE: pipes validates incoming data
     {
+      // this is a syntax to specify the providers
       provide: APP_PIPE,
       useValue: new ValidationPipe({
         whitelist: true, // this will strip out any extra property send in the request
@@ -34,6 +37,7 @@ import cookieSession = require('cookie-session');
 export class AppModule {
   constructor(private configService: ConfigService) {}
 
+  // NOTE: Middleware is a function which is called before the route handler (after client request)
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(

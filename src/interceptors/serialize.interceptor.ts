@@ -25,7 +25,7 @@ export class SerializeInterceptor implements NestInterceptor {
       map((data: any) => {
         // Run something before response is sent out
         return plainToClass(this.dto, data, {
-          excludeExtraneousValues: true,
+          excludeExtraneousValues: true, // NOTE: this option would only share the properties that are marked @Expose()
         });
       }),
     );

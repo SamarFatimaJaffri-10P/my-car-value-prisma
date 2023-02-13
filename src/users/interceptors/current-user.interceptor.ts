@@ -11,6 +11,7 @@ export class CurrentUserInterceptor implements NestInterceptor {
   constructor(private userService: UsersService) {}
 
   async intercept(context: ExecutionContext, handler: CallHandler<any>) {
+    // NOTE: Interceptors adds extra logic to incoming / outgoing responses before and after the route handler is called.
     const request = context.switchToHttp().getRequest();
     const { userId } = request.session || {};
 
