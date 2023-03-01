@@ -9,6 +9,11 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  DB_NAME: car_value_test
+  DATABASE_URL: postgresql://postgres:postgres@localhost:5432/car_value_test?schema=public
+  COOKIE_KEY: abcd1234
+
 jobs:
   build:
 
